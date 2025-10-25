@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS ile Şifre Üretici</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+        label {
+            display: block;
+            margin: 5px 0px;
+        }
+        #strength {
+    font-weight: bold;
+    margin-top: 10px;
+}
+.toast {
+    visibility: hidden;
+    min-width: 200px;
+    background-color: #323232;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 10px;
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.toast.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+    </style>
+</head>
+<body>
+
+    <h2>Şifre Üretici</h2>
+    <label>
+        Uzunluk 
+        <input type="range" id="length" min="4" max="20" value="14">
+        <span id="lenVal">14</span>
+    </label> 
+    <label><input type="checkbox" id="upperCase">Büyük Harf</label>
+    <label><input type="checkbox" id="numbers">Rakam</label>
+    <label><input type="checkbox" id="symbols">Sembol</label>
+
+    <button id="generate">Şifre Üret</button>
+
+    <p id="result"></p>
+<p id="result"></p>
+<p id="strength"></p>
+
+    <button id="copy">Kopyala</button>
+
+    <script>
+        const lenInput = document.getElementById('length');
+        const lenValue = document.getElementById('lenVal');
+        const upper = document.getElementById('upperCase');
+        const numbers = document.getElementById('numbers');
+        const symbols = document.getElementById('symbols');
+
+        lenInput.oninput = () => lenValue.textContent = lenInput.value;
+
+        document.getElementById('generate').onclick = () => {
+            const length = +lenInput.value;
+            const upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const lowerChars = "abcdefghijklmnopqrstuvwxyz";
+            const numberChars = "0123456789";
+            const symbolsChars = "!@#$%^&*+-";
+
+            let allChars = lowerChars;
+            if (upper.checked) allChars += upperChars;
+            if (numbers.checked) allChars += numberChars;
+            if (symbols.checked) allChars += symbolsChars;
+
+            let password = "";
+            for (let i = 0; i < length; i++) {
+                const rand = Math.floor(Math.random() * allChars.length);
+                password += allChars[rand];
+            }
+
+            document.getElementById('result').textContent = "Şifre : " + password;
+        }
+
+        document.getElementById('copy').onclick = () => {
+    const text = document.getElementById('result').textContent.replace('Şifre :', '').trim();
+    if (text) {
+        navigator.clipboard.writeText(text);
+        showToast('Şifre kopyalandı!');
+    } else {
+        showToast('Önce bir şifre üretin!');
+    }
+}
+
+        function evaluateStrength(password, hasUpper, hasNumber, hasSymbol) {
+    const length = password.length;
+    let score = 0;
+
+    if (length >= 8) score++;
+    if (hasUpper) score++;
+    if (hasNumber) score++;
+    if (hasSymbol) score++;
+    if (length >= 12) score++; // ekstra puan
+
+    if (score <= 2) return "Zayıf 🔴";
+    if (score === 3 || score === 4) return "Orta 🟠";
+    return "Güçlü 🟢";
+}
+
+document.getElementById('generate').onclick = () => {
+    const length = +lenInput.value;
+    const upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const lowerChars = "abcdefghijklmnopqrstuvwxyz";
+    const numberChars = "0123456789";
+    const symbolsChars = "!@#$%^&*+-";
+
+    let allChars = lowerChars;
+    const hasUpper = upper.checked;
+    const hasNumber = numbers.checked;
+    const hasSymbol = symbols.checked;
+
+    if (hasUpper) allChars += upperChars;
+    if (hasNumber) allChars += numberChars;
+    if (hasSymbol) allChars += symbolsChars;
+
+    let password = "";
+    for (let i = 0; i < length; i++) {
+        const rand = Math.floor(Math.random() * allChars.length);
+        password += allChars[rand];
+    }
+
+    document.getElementById('result').textContent = "Şifre : " + password;
+
+    const strength = evaluateStrength(password, hasUpper, hasNumber, hasSymbol);
+    document.getElementById('strength').textContent = "Güç: " + strength;
+}
+function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2000); // 2 saniye sonra kaybolur
+}
+
+    </script>
+    <div id="toast" class="toast">Şifre kopyalandı!</div>
+
+</body>
+</html>
